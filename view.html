@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>diabrowser.com</title>
+<style>
+    h1 {
+        margin: 1em;
+    }
+
+    a {
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 80;
+    }
+
+    input {
+        display: none;
+    }
+
+    img {
+        width: 100%;
+    }
+</style>
+</head>
+<body>
+<center>
+<br>
+<br>
+<br>
+<br>
+
+<a id="link" href="https://www.diabrowser.com/" > Right Click and Open in Split View To Open Dia Browser Page & Upload Fast</a>
+<br>
+<img id="img">
+
+</center>
+
+<input id="fileSelect" type="file" accept="image/*" />
+
+
+
+<script>
+  document.getElementById('link').addEventListener('contextmenu', function(event) {
+
+setTimeout(function() {
+
+         fileSelect.click();
+
+
+fileSelect.onchange = (event) => {
+        img.src = URL.createObjectURL(fileSelect.files[0]);
+    }
+
+}, 4000);
+
+
+
+   
+  });
+</script>
+
+</body>
+</html>
+
+
+</style>
